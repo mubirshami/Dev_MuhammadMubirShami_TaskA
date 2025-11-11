@@ -37,11 +37,11 @@ export default function Page() {
 			if (data.results && data.results.length > 0) {
 				setSummary(generateSummary(data.results));
 			} else {
-				setError('No results found for your query.');
+				setError('No results found for your query. Please try a different query.');
 			}
-		} catch (err: Error | unknown) {
+		} catch (err: unknown) {
 			if (err instanceof Error && err.message.includes('400')) {
-				setError('Bad request: Please provide a valid search query.');
+				setError('Bad request: Please provide a valid search query. Please try a different query.');
 			} else {
 				setError('An unexpected error occurred. Please try again.');
 			}
@@ -51,24 +51,40 @@ export default function Page() {
 		}
 	};
 
+	const handleClear = () => {
+		setInput('');
+		setResults([]);
+		setSummary(null);
+		setError(null);
+		setLoading(false);
+	};
+
 	return (
 		<div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
 			<div className="w-full max-w-2xl bg-white rounded-lg p-8">
 				<h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Search</h1>
-				<div className="flex mb-6">
+
+				<div className="flex mb-6 space-x-2">
 					<input
 						value={input}
 						onChange={(e) => setInput(e.target.value)}
 						placeholder="Search for faqs..."
-						className="grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+						className="grow p-3 border border-gray-300 rounded-lg text-gray-900"
 						disabled={loading}
 					/>
 					<button
 						onClick={handleSearch}
-						className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 cursor-pointer"
+						className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
 						disabled={loading}
 					>
 						Search
+					</button>
+					<button
+						onClick={handleClear}
+						className="px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 disabled:opacity-50 cursor-pointer"
+						disabled={loading && !input}
+					>
+						Clear
 					</button>
 				</div>
 
@@ -89,7 +105,7 @@ export default function Page() {
 						{results.map((result) => (
 							<div key={result.id} className="bg-gray-50 p-4 rounded-md border border-gray-200">
 								<h3 className="text-xl font-semibold text-gray-800">{result.title}</h3>
-								<p className="text-gray-700 mt-2 ">{result.body.substring(0, 50)}...</p>
+								<p className="text-gray-700 mt-2">{result.body.substring(0, 50)}...</p>
 							</div>
 						))}
 					</div>
